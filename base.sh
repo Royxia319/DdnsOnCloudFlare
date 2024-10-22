@@ -3,6 +3,7 @@
 #description     :
 #author          :gf@gfshen.cn
 #date            :2022-05-03
+# update remove -P as doesn't support by openwrt
 #==============================================================================
 zoneId=''
 recordName=''
