@@ -104,6 +104,6 @@ createRecord() {
   if [ "$successStat" != "true" ]; then
     return 1
   fi
-  local recordId=$(echo "$result" | grep -Eo '"id":"[^"]+"' | sed 's/"id":"//;s/"//'))
+  local recordId=$(echo "$result" | grep -Eo '"id":"[^"]+"' | sed 's/"id":"//;s/"//')
   echo "$recordId"
 }
