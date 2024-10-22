@@ -43,12 +43,12 @@ checkConfValid() {
 getIpv4Address() {
   # try and choose one that works on your machine
   # curl -k -s "http://members.3322.org/dyndns/getip" | grep -E -o '([0-9]+\.){3}[0-9]+' | head -n1 | cut -d' ' -f1
-  curl -s https://api.ipify.org
+  curl -s http://ipv4.icanhazip.com
 }
 
 getIpv6Address() {
   # try and choose one that works on your machine
-  curl -s -6 https://ifconfig.co/ip
+  curl -s -6 http://ipv6.icanhazip.com
   # curl https://api64.ipify.org
 }
 
@@ -60,10 +60,10 @@ listRecord() {
     -H "Content-Type:application/json" \
     -H "Authorization: Bearer $apiKey")
 
-  local resourceId=$(echo "$result" | grep -Po '(?<="id":")[^"]+')
-  local currentValue=$(echo "$result" | grep -Po '(?<="content":")[^"]+')
+  local resourceId=$(echo "$result" | grep -Eo '"id":"[^"]*"' | cut -d':' -f2 | tr -d '"')
+  local currentValue=$(echo "$result" | grep -Eo '"content":"[^"]*"' | cut -d':' -f2 | tr -d '"')
 
-  local successStat=$(echo "$result" | grep -Po '(?<="success":)[^,]+')
+  local successStat=$(echo "$result" | grep -Eo '"success":[^,]+' | sed 's/"success"://')
   if [ "$successStat" != "true" ]; then
     return 1
   fi
@@ -84,7 +84,7 @@ updateRecord() {
     -H "Content-Type: application/json" \
     --data "{\"type\":\"$type\",\"name\":\"$recordName\",\"content\":\"$value\",\"ttl\":600,\"proxied\":false}")
 
-  local successStat=$(echo "$result" | grep -Po '(?<="success":)[^,]+')
+  local successStat=$(echo "$result" | grep -Eo '"success":[^,]+' | sed 's/"success"://')
   [ "$successStat" = "true" ]
   return $?
 }
@@ -100,10 +100,10 @@ createRecord() {
     -H "Authorization: Bearer $apiKey" \
     -H "Content-Type: application/json" \
     --data "{\"type\":\"$type\",\"name\":\"$recordName\",\"content\":\"$value\",\"ttl\":600,\"proxied\":false}")
-  local successStat=$(echo "$result" | grep -Po '(?<="success":)[^,]+')
+  local successStat=$(echo "$result" | grep -Eo '"success":[^,]+' | sed 's/"success"://')
   if [ "$successStat" != "true" ]; then
     return 1
   fi
-  local recordId=$(echo "$result" | grep -Po '(?<="id":")[^"]+')
+  local recordId=$(echo "$result" | grep -Eo '"id":"[^"]+"' | sed 's/"id":"//;s/"//'))
   echo "$recordId"
 }
